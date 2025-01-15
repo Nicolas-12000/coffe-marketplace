@@ -1,0 +1,18 @@
+# Node
+node_modules/
+dist/
+
+# Ambiente
+.env
+
+# Logs
+logs/
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# Otros
+.DS_Store
+coverage/
