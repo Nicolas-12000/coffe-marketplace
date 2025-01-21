@@ -1,4 +1,4 @@
-# Node
+# Node.js
 node_modules/
 dist/
 
@@ -9,10 +9,24 @@ dist/
 logs/
 *.log
 
-# IDE
+# IDE/Editor
 .vscode/
 .idea/
 
-# Otros
+# Sistema Operativo
 .DS_Store
+Thumbs.db
+
+# Tests y Cobertura
 coverage/
+.nyc_output/
+
+# Configuración temporal
+*.tsbuildinfo
+
+# Documentación
+docs/
+
+# Archivos temporales de Git
+.gitconfig
+.gitignore~

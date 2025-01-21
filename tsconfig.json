@@ -18,6 +18,6 @@
       "*": ["node_modules/*", "src/types/*"]
     }
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "**/*.spec.ts"]
+  "include": ["src/**/*"], // Incluye todos los archivos dentro de `src`
+  "exclude": ["node_modules", "**/*.spec.ts"] // Excluye tests y node_modules
 }
