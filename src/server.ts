@@ -1,25 +1,27 @@
 import express, { Request, Response, NextFunction } from 'express';
-import cors from 'cors';
-import morgan from 'morgan'; // Para logs de solicitudes HTTP
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
+import { AppDataSource } from './infrastructure/database/config/database';
 
 // Importar rutas
-import authRoutes from './interfaces/routes/auth.routes';
-import productRoutes from './interfaces/routes/products.routes';
-import recommendationRoutes from './interfaces/routes/recommendations.routes';
+import authRoutes from './api/routes/auth.routes';
+import productRoutes from './api/routes/products.routes';
+import recommendationRoutes from './api/routes/recommendations.routes';
 
 // Inicializar la aplicación
 const app = express();
 
+// Conectar a la base de datos
+AppDataSource.initialize()
+  .then(() => {
+    console.log('📦 Base de datos conectada con éxito');
+  })
+  .catch((error) => {
+    console.error('❌ Error conectando a la base de datos:', error);
+  });
+
 // Middleware para parsear JSON
 app.use(express.json());
-
-// Middleware para permitir CORS (Acceso desde otros dominios)
-app.use(cors());
-
-// Logs HTTP con morgan
-app.use(morgan('dev'));
 
 // Configuración de Swagger
 const swaggerOptions = {
@@ -36,7 +38,7 @@ const swaggerOptions = {
       },
     ],
   },
-  apis: ['./src/interfaces/routes/*.ts'], // Cambia esta ruta si tus rutas están en otro directorio
+  apis: ['./src/api/routes/*.ts'], // Cambia esta ruta si tus rutas están en otro directorio
 };
 
 const swaggerDocs = swaggerJsdoc(swaggerOptions);

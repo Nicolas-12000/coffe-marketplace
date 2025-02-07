@@ -1,5 +1,5 @@
 import { IRepository } from './IRepository';
-import { Coffee, RoastLevel, BeanType } from '../Coffee';
+import { Coffee, RoastLevel, BeanType } from '../entities/Coffee';
 
 /**
  * Filtros para realizar búsquedas avanzadas de productos de café.

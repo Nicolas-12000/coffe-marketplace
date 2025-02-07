@@ -1,5 +1,5 @@
 import { IRepository } from './IRepository';
-import { Coffee } from '../Coffee';
+import { Coffee } from '../entities/Coffee';
 
 /**
  * Parámetros de búsqueda para realizar consultas avanzadas de productos de café.

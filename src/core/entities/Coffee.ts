@@ -45,18 +45,20 @@ export interface CoffeeAttributes {
  * Interfaz para las propiedades de un objeto de café.
  */
 export interface ICoffeeProps {
+  id: string;
   name: string;
   description: string;
   price: number;
+  rating: number;
   stock: number;
   origin: string;
-  altitude?: number;
-  roastLevel: RoastLevel;
-  beanType: BeanType;
-  processingMethod: ProcessingMethod;
+  altitude: number;
+  roastLevel: string;
+  beanType: string;
+  processingMethod: string;
   harvestDate?: Date;
   roastDate?: Date;
-  attributes: CoffeeAttributes;
+  attributes: any;
   images: string[];
   sellerId: string;
   isAvailable: boolean;
@@ -145,135 +147,62 @@ export class Coffee {
   }
 
   /**
-   * Valida los atributos del café (acidez, cuerpo, dulzura, amargor, aroma).
-   * Lanza un error si algún atributo está fuera del rango 1-5.
+   * Método estático para convertir un objeto en una instancia de Coffee.
+   * @param data - Datos del café provenientes de la base de datos.
+   * @returns Una instancia de Coffee.
    */
-  private validateAttributes(): void {
-    const { acidity, body, sweetness, bitterness, aroma } = this.attributes;
-
-    const checkAttribute = (name: string, value: number): void => {
-      if (value < 1 || value > 5) {
-        throw new Error(`${name} debe estar entre 1 y 5`);
-      }
-    };
-
-    checkAttribute('acidity', acidity);
-    checkAttribute('body', body);
-    checkAttribute('sweetness', sweetness);
-    checkAttribute('bitterness', bitterness);
-    checkAttribute('aroma', aroma);
+  static toCoffeeEntity(data: any): Coffee {
+    return new Coffee({
+      id: data._id.toString(),
+      name: data.name,
+      description: data.description,
+      price: data.price,
+      rating: data.rating,
+      stock: data.stock,
+      origin: data.origin,
+      altitude: data.altitude,
+      roastLevel: data.roastLevel,
+      beanType: data.beanType,
+      processingMethod: data.processingMethod,
+      harvestDate: data.harvestDate ? new Date(data.harvestDate) : undefined,
+      roastDate: data.roastDate ? new Date(data.roastDate) : undefined,
+      attributes: data.attributes,
+      images: data.images,
+      sellerId: data.sellerId,
+      isAvailable: data.isAvailable
+    });
   }
 
   /**
-   * Valida que el precio sea mayor a 0.
-   * Lanza un error si el precio es inválido.
+   * Validar los atributos del café.
+   */
+  private validateAttributes(): void {
+    if (!this.attributes) {
+      throw new Error("Los atributos del café son obligatorios.");
+    }
+    const { acidity, body, sweetness, bitterness, aroma } = this.attributes;
+    [acidity, body, sweetness, bitterness, aroma].forEach((value) => {
+      if (value < 1 || value > 5) {
+        throw new Error("Los atributos del café deben estar en una escala de 1 a 5.");
+      }
+    });
+  }
+
+  /**
+   * Validar el precio del café.
    */
   private validatePrice(): void {
     if (this.price <= 0) {
-      throw new Error('El precio debe ser mayor a 0');
+      throw new Error("El precio del café debe ser mayor a 0.");
     }
   }
 
   /**
-   * Valida que el stock no sea negativo.
-   * Lanza un error si el stock es inválido.
+   * Validar el stock del café.
    */
   private validateStock(): void {
     if (this.stock < 0) {
-      throw new Error('El stock no puede ser negativo');
+      throw new Error("El stock del café no puede ser negativo.");
     }
-  }
-
-  /**
-   * Actualiza el stock con una cantidad dada.
-   * Lanza un error si el stock resultante es negativo.
-   * @param quantity - Cantidad para ajustar el stock (positiva o negativa).
-   */
-  updateStock(quantity: number): void {
-    const newStock = this.stock + quantity;
-    if (newStock < 0) {
-      throw new Error('Stock insuficiente');
-    }
-    this.stock = newStock;
-    this.isAvailable = this.stock > 0;
-    this.updatedAt = new Date();
-  }
-
-  /**
-   * Actualiza el precio del café.
-   * Lanza un error si el nuevo precio es inválido.
-   * @param newPrice - El nuevo precio del café.
-   */
-  updatePrice(newPrice: number): void {
-    if (newPrice <= 0) {
-      throw new Error('El precio debe ser mayor a 0');
-    }
-    this.price = newPrice;
-    this.updatedAt = new Date();
-  }
-
-  /**
-   * Agrega una reseña con una calificación dada.
-   * Lanza un error si la calificación está fuera del rango 1-5.
-   * @param rating - La calificación para agregar (1-5).
-   */
-  addReview(rating: number): void {
-    if (rating < 1 || rating > 5) {
-      throw new Error('La calificación debe estar entre 1 y 5');
-    }
-    const totalRating = this.rating * this.reviewCount + rating;
-    this.reviewCount++;
-    this.rating = +(totalRating / this.reviewCount).toFixed(1);
-    this.updatedAt = new Date();
-  }
-
-  /**
-   * Actualiza las propiedades del café con los datos parciales proporcionados.
-   * Valida precio, stock y atributos si se proporcionan.
-   * @param props - Propiedades parciales para actualizar.
-   */
-  update(props: Partial<Omit<ICoffeeProps, 'id' | 'sellerId'>>): void {
-    if (props.price !== undefined) {
-      this.updatePrice(props.price);
-    }
-    if (props.stock !== undefined) {
-      this.updateStock(props.stock - this.stock);
-    }
-    if (props.attributes) {
-      this.attributes = props.attributes;
-      this.validateAttributes();
-    }
-
-    Object.assign(this, props);
-    this.updatedAt = new Date();
-  }
-
-  /**
-   * Convierte el objeto de café a un objeto JSON.
-   * @returns Una representación en JSON del objeto de café.
-   */
-  toJSON(): Record<string, unknown> {
-    return {
-      id: this.id,
-      name: this.name,
-      description: this.description,
-      price: this.price,
-      stock: this.stock,
-      origin: this.origin,
-      altitude: this.altitude,
-      roastLevel: this.roastLevel,
-      beanType: this.beanType,
-      processingMethod: this.processingMethod,
-      harvestDate: this.harvestDate,
-      roastDate: this.roastDate,
-      attributes: this.attributes,
-      images: this.images,
-      sellerId: this.sellerId,
-      isAvailable: this.isAvailable,
-      rating: this.rating,
-      reviewCount: this.reviewCount,
-      createdAt: this.createdAt,
-      updatedAt: this.updatedAt
-    };
   }
 }
