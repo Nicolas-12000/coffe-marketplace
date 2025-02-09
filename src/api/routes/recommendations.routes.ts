@@ -1,22 +1,66 @@
-import express from 'express';
-import { getRecommendations } from '../controllers/recommendations.controller';
+import { Router } from 'express';
+import { RecommendationsController } from '../controllers/recommendations.controller';
 
-const router = express.Router();
+const router = Router();
+const recommendationsController = new RecommendationsController();
 
 /**
  * @swagger
- * /recommendations:
+ * /api/recommendations/{userId}:
  *   get:
- *     summary: Obtener recomendaciones de productos
- *     description: Retorna una lista de productos recomendados.
  *     tags:
- *       - Recommendations
+ *       - Recomendaciones
+ *     summary: Obtiene recomendaciones personalizadas de café para un usuario
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID del usuario
+ *       - in: query
+ *         name: flavorProfile
+ *         schema:
+ *           type: string
+ *         description: Perfil de sabor preferido
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: Número máximo de recomendaciones
  *     responses:
  *       200:
- *         description: Lista de recomendaciones obtenida exitosamente.
+ *         description: Lista de recomendaciones de café
  *       500:
- *         description: Error al obtener las recomendaciones.
+ *         description: Error del servidor
  */
-router.get('/', getRecommendations);
+router.get('/:userId', recommendationsController.getRecommendations.bind(recommendationsController));
+
+/**
+ * @swagger
+ * /api/recommendations/similar/{coffeeId}:
+ *   get:
+ *     tags:
+ *       - Recomendaciones
+ *     summary: Obtiene cafés similares a uno específico
+ *     parameters:
+ *       - in: path
+ *         name: coffeeId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID del café de referencia
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: Número máximo de cafés similares
+ *     responses:
+ *       200:
+ *         description: Lista de cafés similares
+ *       500:
+ *         description: Error del servidor
+ */
+router.get('/similar/:coffeeId', recommendationsController.getSimilarCoffees.bind(recommendationsController));
 
 export default router;
